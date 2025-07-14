@@ -4,27 +4,31 @@
  */
 package view;
 
+import java.sql.Connection;
+
 /**
  *
  * @author ACER
  */
 public class MainView extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainView.class.getName());
+    private final Connection connection;
     private PatientRecordsView patientRecordsView;
     private PatientVisitView patientVisitView;
     private RecordsView recordsView;
     /**
      * Creates new form MainView
      */
-    public MainView() {
+    public MainView(Connection connection) {
+        this.connection = connection;
         initComponents();
         this.setSize(600, 500); // 🔧 set preferred startup size (width, height)
         this.setLocationRelativeTo(null); // 🎯 center the window on screen
-    
-        patientRecordsView = new PatientRecordsView();
+
+        patientRecordsView = new PatientRecordsView(connection);
         patientVisitView = new PatientVisitView();
-        recordsView = new RecordsView();
+        recordsView = new RecordsView(connection);
         
         MainPanel.add(patientRecordsView, "patientRecordsCard");
         MainPanel.add(patientVisitView, "patientVisitCard");
@@ -312,58 +316,55 @@ public class MainView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPatientRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPatientRecordsActionPerformed
-        PatientRecordsView patientView = new PatientRecordsView();
         MainPanel.removeAll();
-        MainPanel.add(patientView);
+        MainPanel.add(patientRecordsView);
         MainPanel.revalidate();
         MainPanel.repaint();
-        
+
         this.pack();
         this.setLocationRelativeTo(null);
     }//GEN-LAST:event_btnPatientRecordsActionPerformed
 
     private void btnDoctorRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDoctorRecordsActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(this, "Not implemented");
     }//GEN-LAST:event_btnDoctorRecordsActionPerformed
 
     private void btnLabProceduresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLabProceduresActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(this, "Not implemented");
     }//GEN-LAST:event_btnLabProceduresActionPerformed
 
     private void btnDiseaseRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiseaseRecordsActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(this, "Not implemented");
     }//GEN-LAST:event_btnDiseaseRecordsActionPerformed
 
     private void btnCreateMedicalHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateMedicalHistoryActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(this, "Not implemented");
     }//GEN-LAST:event_btnCreateMedicalHistoryActionPerformed
 
     private void btnCreateLabResultActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateLabResultActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(this, "Not implemented");
     }//GEN-LAST:event_btnCreateLabResultActionPerformed
 
     private void btnCreateDiagnosisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateDiagnosisActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(this, "Not implemented");
     }//GEN-LAST:event_btnCreateDiagnosisActionPerformed
 
     private void btnCreatePatientVisitsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreatePatientVisitsActionPerformed
-        PatientVisitView patientVisitView = new PatientVisitView();
         MainPanel.removeAll();
         MainPanel.add(patientVisitView);
         MainPanel.revalidate();
         MainPanel.repaint();
-        
+
         this.pack();
         this.setLocationRelativeTo(null);
     }//GEN-LAST:event_btnCreatePatientVisitsActionPerformed
 
     private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
-        RecordsView recordsView = new RecordsView();
         MainPanel.removeAll();
         MainPanel.add(recordsView);
         MainPanel.revalidate();
         MainPanel.repaint();
-        
+
         this.pack();
         this.setLocationRelativeTo(null);
     }//GEN-LAST:event_btnReportsActionPerformed
@@ -400,7 +401,7 @@ public class MainView extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new MainView().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new MainView(null).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

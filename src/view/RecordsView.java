@@ -10,6 +10,7 @@ import controller.REPORT_LabProcedureService;
 import controller.REPORT_PatientVisitService;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
 
 /**
  *
@@ -17,10 +18,13 @@ import javax.swing.table.DefaultTableModel;
  */
 public class RecordsView extends javax.swing.JPanel {
 
+    private final Connection connection;
+
     /**
      * Creates new form RecordsView
      */
-    public RecordsView() {
+    public RecordsView(Connection connection) {
+        this.connection = connection;
         initComponents();
     }
 
@@ -176,7 +180,7 @@ public class RecordsView extends javax.swing.JPanel {
     javax.swing.table.DefaultTableModel model = null;
 
     if ("Disease Trends".equals(type)) {
-        REPORT_DiseaseTrendService service = new REPORT_DiseaseTrendService(null);
+        REPORT_DiseaseTrendService service = new REPORT_DiseaseTrendService(connection);
         java.util.List<model.REPORT_DiseaseTrend> data = service.generateReport(periodPattern);
         model = new javax.swing.table.DefaultTableModel(new String[]{"Disease", "Frequency", "Period"}, 0);
         if (data != null) {
@@ -185,14 +189,14 @@ public class RecordsView extends javax.swing.JPanel {
             }
         }
     } else if ("Doctor Activity".equals(type)) {
-        REPORT_DoctorActivityService service = new REPORT_DoctorActivityService(null);
+        REPORT_DoctorActivityService service = new REPORT_DoctorActivityService(connection);
         model.REPORT_DoctorActivity r = service.generateReport(1, periodPattern);
         model = new javax.swing.table.DefaultTableModel(new String[]{"Doctor", "Visits", "Diagnoses", "Lab Orders"}, 0);
         if (r != null) {
             model.addRow(new Object[]{r.getDoctorName(), r.getTotalVisits(), r.getTotalDiagnoses(), r.getTotalLabOrders()});
         }
     } else if ("Lab Procedure".equals(type)) {
-        REPORT_LabProcedureService service = new REPORT_LabProcedureService(null);
+        REPORT_LabProcedureService service = new REPORT_LabProcedureService(connection);
         java.util.List<model.REPORT_LabProcedure> data = service.generateReport(periodPattern);
         model = new javax.swing.table.DefaultTableModel(new String[]{"Procedure ID", "Name", "Patient ID", "Patient Name", "Date"}, 0);
         if (data != null) {
@@ -201,7 +205,7 @@ public class RecordsView extends javax.swing.JPanel {
             }
         }
     } else if ("Patient Visits".equals(type)) {
-        REPORT_PatientVisitService service = new REPORT_PatientVisitService(null);
+        REPORT_PatientVisitService service = new REPORT_PatientVisitService(connection);
         java.util.List<model.REPORT_PatientVisit> data = service.generateReport(periodPattern);
         model = new javax.swing.table.DefaultTableModel(new String[]{"Visit ID", "Patient ID", "Patient Name", "Visit Date"}, 0);
         if (data != null) {
