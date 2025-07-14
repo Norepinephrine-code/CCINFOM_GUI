@@ -11,16 +11,19 @@ import dto.ServiceResult;
 import model.Patient;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
 
 /**
  *
  * @author ACER
  */
 public class PatientRecordsView extends javax.swing.JPanel {
+    private final Connection connection;
     /**
      * Creates new form PatientRecordsView
      */
-    public PatientRecordsView() {
+    public PatientRecordsView(Connection connection) {
+        this.connection = connection;
         initComponents();
         this.setPreferredSize(new Dimension(600, 500));
     }
@@ -185,38 +188,24 @@ public class PatientRecordsView extends javax.swing.JPanel {
     }// </editor-fold>                        
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        PatientService service = new PatientService(null);
-
-        String firstName = txtFirstName.getText().trim();
-        String lastName = txtLastName.getText().trim();
-        String dobStr = txtDob.getText().trim();
+        PatientService service = new PatientService(connection);
 
         Patient patient = new Patient();
-        patient.setFirstName(firstName);
-        patient.setLastName(lastName);
+        patient.setFirstName(txtFirstName.getText().trim());
+        patient.setLastName(txtLastName.getText().trim());
         try {
-            patient.setDateOfBirth(java.sql.Date.valueOf(dobStr));
+            patient.setDateOfBirth(java.sql.Date.valueOf(txtDob.getText().trim()));
         } catch (IllegalArgumentException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Invalid date format. Use yyyy-MM-dd");
-            return;
+            patient.setDateOfBirth(null);
         }
 
         ServiceResult result = service.addPatient(patient);
         javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
 
         if (result.getStatus()) {
-            java.util.List<Patient> patients = service.getAllPatients();
-            String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
-            DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-            if (patients != null) {
-                for (Patient p : patients) {
-                    Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
-                    model.addRow(row);
-                }
-            }
-            scrollPatientTable.setModel(model);
+            loadPatientsToTable();
         }
-    }                                      
+    }
 
     private void txtDobActionPerformed(java.awt.event.ActionEvent evt) {                                       
         // TODO add your handling code here:
@@ -230,49 +219,48 @@ public class PatientRecordsView extends javax.swing.JPanel {
         // TODO add your handling code here:
     }                                            
 
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        PatientService service = new PatientService(null);
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {
+        PatientService service = new PatientService(connection);
 
+        int patientId;
         try {
-        int patientId = Integer.parseInt(txtPatientId.getText().trim());
-        
-        ServiceResult result = service.getPatientById(patientId);
+            patientId = Integer.parseInt(txtPatientId.getText().trim());
+        } catch (NumberFormatException e) {
+            patientId = -1;
+        }
 
+        ServiceResult result = service.deletePatient(patientId);
         javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
 
-        if (result.getStatus() && result.getData() != null) {
-            Patient p = (Patient) result.getData();
-            String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
-            DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-            Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
-            model.addRow(row);
-            scrollPatientTable.setModel(model);
+        if (result.getStatus()) {
+            loadPatientsToTable();
         }
-        } catch (NumberFormatException e) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid numeric Patient ID.");
-        }
-    }                                         
+    }
 
-    private void btnShowActionPerformed(java.awt.event.ActionEvent evt) {                                        
-        PatientService service = new PatientService(null);
-        java.util.List<Patient> patients = service.getAllPatients();
-        String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        if (patients != null) {
-            for (Patient p : patients) {
-                Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
-                model.addRow(row);
-            }
+    private void btnShowActionPerformed(java.awt.event.ActionEvent evt) {
+        PatientService service = new PatientService(connection);
+
+        int patientId;
+        try {
+            patientId = Integer.parseInt(txtPatientId.getText().trim());
+        } catch (NumberFormatException e) {
+            patientId = -1;
+        }
+
+        Patient p = service.getPatientById(patientId);
+        DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "First Name", "Last Name", "DOB"}, 0);
+        if (p != null) {
+            model.addRow(new Object[]{p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()});
         }
         scrollPatientTable.setModel(model);
-    }                                       
+    }
 
     private void btnShowAllPatientRecordsActionPerformed(java.awt.event.ActionEvent evt) {                                                         
         loadPatientsToTable();
     }                                                        
 
     private void loadPatientsToTable() {
-        PatientService service = new PatientService(null);
+        PatientService service = new PatientService(connection);
         List<Patient> patients = service.getAllPatients();
 
         String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
