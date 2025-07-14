@@ -9,6 +9,7 @@ import controller.PatientVisitService;
 import dto.ServiceResult;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
 
 /**
  *
@@ -16,10 +17,13 @@ import javax.swing.table.DefaultTableModel;
  */
 public class PatientVisitView extends javax.swing.JPanel {
 
+    private final Connection connection;
+
     /**
      * Creates new form PatientVisitView
      */
-    public PatientVisitView() {
+    public PatientVisitView(Connection connection) {
+        this.connection = connection;
         initComponents();
         this.setPreferredSize(new Dimension(500, 600));
     }
@@ -187,59 +191,47 @@ public class PatientVisitView extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        PatientVisitService service = new PatientVisitService(null);
+        PatientVisitService service = new PatientVisitService(connection);
+
+        int patientId;
+        int doctorId;
         try {
-            int patientId = Integer.parseInt(txtDob.getText().trim());
-            int doctorId = Integer.parseInt(txtDob1.getText().trim());
-            String reason = jTextField1.getText().trim();
-
-            model.PatientVisit visit = new model.PatientVisit();
-            visit.setPatientId(patientId);
-            visit.setDoctorId(doctorId);
-            visit.setReason(reason);
-            visit.setDateTime(new java.sql.Timestamp(System.currentTimeMillis()));
-
-            ServiceResult result = service.addVisit(visit);
-            javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
-
-            if (result.getStatus()) {
-                java.util.List<model.PatientVisit> visits = service.getAllVisits();
-                javax.swing.table.DefaultTableModel modelTbl = new javax.swing.table.DefaultTableModel(
-                        new String[]{"Visit ID", "Patient ID", "Doctor ID", "Reason", "Date"}, 0);
-                if (visits != null) {
-                    for (model.PatientVisit v : visits) {
-                        Object[] row = {v.getVisitId(), v.getPatientId(), v.getDoctorId(), v.getReason(), v.getDateTime()};
-                        modelTbl.addRow(row);
-                    }
-                }
-                jTable1.setModel(modelTbl);
-            }
+            patientId = Integer.parseInt(txtDob.getText().trim());
+            doctorId = Integer.parseInt(txtDob1.getText().trim());
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Invalid input for IDs.");
+            patientId = -1;
+            doctorId = -1;
+        }
+
+        model.PatientVisit visit = new model.PatientVisit();
+        visit.setPatientId(patientId);
+        visit.setDoctorId(doctorId);
+        visit.setReason(jTextField1.getText().trim());
+        visit.setDateTime(new java.sql.Timestamp(System.currentTimeMillis()));
+
+        ServiceResult result = service.addVisit(visit);
+        javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
+
+        if (result.getStatus()) {
+            loadVisitsToTable();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        PatientVisitService service = new PatientVisitService(null);
-        try {
-            int visitId = Integer.parseInt(txtDob2.getText().trim());
-            ServiceResult result = service.deleteVisit(visitId);
-            javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
+        PatientVisitService service = new PatientVisitService(connection);
 
-            if (result.getStatus()) {
-                java.util.List<model.PatientVisit> visits = service.getAllVisits();
-                javax.swing.table.DefaultTableModel modelTbl = new javax.swing.table.DefaultTableModel(
-                        new String[]{"Visit ID", "Patient ID", "Doctor ID", "Reason", "Date"}, 0);
-                if (visits != null) {
-                    for (model.PatientVisit v : visits) {
-                        Object[] row = {v.getVisitId(), v.getPatientId(), v.getDoctorId(), v.getReason(), v.getDateTime()};
-                        modelTbl.addRow(row);
-                    }
-                }
-                jTable1.setModel(modelTbl);
-            }
+        int visitId;
+        try {
+            visitId = Integer.parseInt(txtDob2.getText().trim());
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid numeric Visit ID.");
+            visitId = -1;
+        }
+
+        ServiceResult result = service.deleteVisit(visitId);
+        javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
+
+        if (result.getStatus()) {
+            loadVisitsToTable();
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -248,10 +240,13 @@ public class PatientVisitView extends javax.swing.JPanel {
     }//GEN-LAST:event_txtDob2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        PatientVisitService service = new PatientVisitService(null);
-        java.util.List<model.PatientVisit> visits = service.getAllVisits();
-        javax.swing.table.DefaultTableModel modelTbl = new javax.swing.table.DefaultTableModel(
-                new String[]{"Visit ID", "Patient ID", "Doctor ID", "Reason", "Date"}, 0);
+        loadVisitsToTable();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void loadVisitsToTable() {
+        PatientVisitService service = new PatientVisitService(connection);
+        List<model.PatientVisit> visits = service.getAllVisits();
+        DefaultTableModel modelTbl = new DefaultTableModel(new String[]{"Visit ID", "Patient ID", "Doctor ID", "Reason", "Date"}, 0);
         if (visits != null) {
             for (model.PatientVisit v : visits) {
                 Object[] row = {v.getVisitId(), v.getPatientId(), v.getDoctorId(), v.getReason(), v.getDateTime()};
@@ -259,7 +254,7 @@ public class PatientVisitView extends javax.swing.JPanel {
             }
         }
         jTable1.setModel(modelTbl);
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
