@@ -4,6 +4,13 @@
  */
 package view;
 
+import controller.REPORT_DiseaseTrendService;
+import controller.REPORT_DoctorActivityService;
+import controller.REPORT_LabProcedureService;
+import controller.REPORT_PatientVisitService;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author ACER
@@ -123,19 +130,71 @@ public class RecordsView extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cbReportTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbReportTypeActionPerformed
-        // TODO add your handling code here:
+        String periodPattern = null;
+        java.time.LocalDate now = java.time.LocalDate.now();
+        if (btngHours.isSelected()) {
+            periodPattern = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } else if (btngDays.isSelected()) {
+            periodPattern = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+        } else if (btngYear.isSelected()) {
+            periodPattern = String.valueOf(now.getYear());
+        }
+        if (periodPattern == null) {
+            return;
+        }
+
+        String type = (String) cbReportType.getSelectedItem();
+        javax.swing.table.DefaultTableModel model = null;
+        if ("Disease Trends".equals(type)) {
+            REPORT_DiseaseTrendService service = new REPORT_DiseaseTrendService(null);
+            java.util.List<model.REPORT_DiseaseTrend> data = service.generateReport(periodPattern);
+            model = new javax.swing.table.DefaultTableModel(new String[]{"Disease", "Frequency", "Period"}, 0);
+            if (data != null) {
+                for (model.REPORT_DiseaseTrend r : data) {
+                    model.addRow(new Object[]{r.getDiseaseName(), r.getFrequency(), r.getPeriod()});
+                }
+            }
+        } else if ("Doctor Activity".equals(type)) {
+            REPORT_DoctorActivityService service = new REPORT_DoctorActivityService(null);
+            model.REPORT_DoctorActivity r = service.generateReport(1, periodPattern);
+            model = new javax.swing.table.DefaultTableModel(new String[]{"Doctor", "Visits", "Diagnoses", "Lab Orders"}, 0);
+            if (r != null) {
+                model.addRow(new Object[]{r.getDoctorName(), r.getTotalVisits(), r.getTotalDiagnoses(), r.getTotalLabOrders()});
+            }
+        } else if ("Lab Procedure".equals(type)) {
+            REPORT_LabProcedureService service = new REPORT_LabProcedureService(null);
+            java.util.List<model.REPORT_LabProcedure> data = service.generateReport(periodPattern);
+            model = new javax.swing.table.DefaultTableModel(new String[]{"Procedure ID", "Name", "Patient ID", "Patient Name", "Date"}, 0);
+            if (data != null) {
+                for (model.REPORT_LabProcedure r : data) {
+                    model.addRow(new Object[]{r.getProcedureId(), r.getProcedureName(), r.getPatientId(), r.getPatientName(), r.getProcedureDate()});
+                }
+            }
+        } else if ("Patient Visits".equals(type)) {
+            REPORT_PatientVisitService service = new REPORT_PatientVisitService(null);
+            java.util.List<model.REPORT_PatientVisit> data = service.generateReport(periodPattern);
+            model = new javax.swing.table.DefaultTableModel(new String[]{"Visit ID", "Patient ID", "Patient Name", "Visit Date"}, 0);
+            if (data != null) {
+                for (model.REPORT_PatientVisit r : data) {
+                    model.addRow(new Object[]{r.getVisitId(), r.getPatientId(), r.getPatientName(), r.getVisitDate()});
+                }
+            }
+        }
+        if (model != null) {
+            jTable1.setModel(model);
+        }
     }//GEN-LAST:event_cbReportTypeActionPerformed
 
     private void btngHoursActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btngHoursActionPerformed
-        // TODO add your handling code here:
+        cbReportTypeActionPerformed(evt);
     }//GEN-LAST:event_btngHoursActionPerformed
 
     private void btngDaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btngDaysActionPerformed
-        // TODO add your handling code here:
+        cbReportTypeActionPerformed(evt);
     }//GEN-LAST:event_btngDaysActionPerformed
 
     private void btngYearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btngYearActionPerformed
-        // TODO add your handling code here:
+        cbReportTypeActionPerformed(evt);
     }//GEN-LAST:event_btngYearActionPerformed
 
 

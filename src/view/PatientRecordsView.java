@@ -173,21 +173,36 @@ public class PatientRecordsView extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        PatientService service = new PatientService(null);
+
         String firstName = txtFirstName.getText().trim();
         String lastName = txtLastName.getText().trim();
-        String dob = txtDob.getText().trim();
+        String dobStr = txtDob.getText().trim();
 
         Patient patient = new Patient();
         patient.setFirstName(firstName);
         patient.setLastName(lastName);
-        patient.setDateOfBirth(dob);
+        try {
+            patient.setDateOfBirth(java.sql.Date.valueOf(dobStr));
+        } catch (IllegalArgumentException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Invalid date format. Use yyyy-MM-dd");
+            return;
+        }
 
-        ServiceResult result = patientService.insertPatient(patient);
-
+        ServiceResult result = service.addPatient(patient);
         javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
 
-        if (result.isSuccess()) {
-            loadPatientsToTable();
+        if (result.getStatus()) {
+            java.util.List<Patient> patients = service.getAllPatients();
+            String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
+            DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+            if (patients != null) {
+                for (Patient p : patients) {
+                    Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
+                    model.addRow(row);
+                }
+            }
+            scrollPatientTable.setModel(model);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
@@ -204,42 +219,58 @@ public class PatientRecordsView extends javax.swing.JPanel {
     }//GEN-LAST:event_txtPatientIdActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-      try {
+        PatientService service = new PatientService(null);
+        try {
             int patientId = Integer.parseInt(txtPatientId.getText().trim());
-
-            ServiceResult result = patientService.deletePatient(patientId);
+            ServiceResult result = service.deletePatient(patientId);
             javax.swing.JOptionPane.showMessageDialog(this, result.getMessage());
 
-            if (result.isSuccess()) {
-                loadPatientsToTable();
+            if (result.getStatus()) {
+                java.util.List<Patient> patients = service.getAllPatients();
+                String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
+                DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+                if (patients != null) {
+                    for (Patient p : patients) {
+                        Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
+                        model.addRow(row);
+                    }
+                }
+                scrollPatientTable.setModel(model);
             }
-
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid numeric Patient ID.");
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnShowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowActionPerformed
-        // TODO add your handling code here:
+        PatientService service = new PatientService(null);
+        java.util.List<Patient> patients = service.getAllPatients();
+        String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        if (patients != null) {
+            for (Patient p : patients) {
+                Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
+                model.addRow(row);
+            }
+        }
+        scrollPatientTable.setModel(model);
     }//GEN-LAST:event_btnShowActionPerformed
 
     private void loadPatientsToTable() {
-    List<Patient> patients = patientService.getAllPatients();
+        PatientService service = new PatientService(null);
+        List<Patient> patients = service.getAllPatients();
 
-    String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
-    DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        String[] columnNames = {"ID", "First Name", "Last Name", "DOB"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
-    for (Patient p : patients) {
-        Object[] row = {
-            p.getPatientId(),
-            p.getFirstName(),
-            p.getLastName(),
-            p.getDateOfBirth()
-        };
-        model.addRow(row);
-    }
+        if (patients != null) {
+            for (Patient p : patients) {
+                Object[] row = {p.getPatientId(), p.getFirstName(), p.getLastName(), p.getDateOfBirth()};
+                model.addRow(row);
+            }
+        }
 
-    scrollPatientTable.setModel(model);
+        scrollPatientTable.setModel(model);
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
