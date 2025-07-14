@@ -27,7 +27,7 @@ public class MainView extends javax.swing.JFrame {
         this.setLocationRelativeTo(null); // 🎯 center the window on screen
 
         patientRecordsView = new PatientRecordsView(connection);
-        patientVisitView = new PatientVisitView();
+        patientVisitView = new PatientVisitView(connection);
         recordsView = new RecordsView(connection);
         
         MainPanel.add(patientRecordsView, "patientRecordsCard");
